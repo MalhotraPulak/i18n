@@ -28,7 +28,7 @@ function processor(strings, code, filename) {
   //   return
   // } 
   let x = babel.transformSync(code, {
-    filename: "hello.ts",
+    filename: filename,
     presets: ["@babel/preset-typescript"],
     code: false,
     ast: true
@@ -149,8 +149,9 @@ async function getStringsToTranslate({
   await processFiles(Array.from(allFiles), (code, filename) => {
     processor(stringsFound, code, filename);
   });
-  console.log(stringsFound);
+  
+  console.log(chalk.bold(`❯ Found ${stringsFound.length} strings in the files`));
 }
 export default getStringsToTranslate;
 
-getStringsToTranslate({entryPoint: ["./product/entry-point.js"], rootDir: "./product", extensions: ["ios.js", "js", "tsx", "ts"]})
+// getStringsToTranslate({entryPoint: ["./product/entry-point.js"], rootDir: "./product", extensions: ["ios.js", "js", "tsx", "ts"]})
