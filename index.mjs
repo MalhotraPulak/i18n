@@ -161,15 +161,16 @@ async function getStringsToTranslate({
 }
 export default getStringsToTranslate;
 
-// getStringsToTranslate({
-//   entryPoint: ["./product/entry-point.js"],
-//   rootDir: "./product",
-//   extensions: ["ios.js", "js", "tsx", "ts"],
-//   extractorFunctionName: "getString"
-// });
 getStringsToTranslate({
-  entryPoint: ["../i18n/eigen/index.android.js", "../i18n/eigen/index.ios.js"],
-  rootDir: "../i18n/eigen",
-  extensions: ["ios.js", "js", "tsx", "ts"],
-  extractorFunctionName: "useFeatureFlag",
+  entryPoint: ["./product/entry-point.js"],
+  rootDir: "./product",
+  extensions: ["android.js", "ios.js", "js", "jsx", "tsx", "ts"],
+  extractorFunctionName: "getString"
 });
+// getStringsToTranslate({
+//   entryPoint: ["../i18n/eigen/index.android.js", "../i18n/eigen/index.ios.js"],
+//   rootDir: "../i18n/eigen",
+//   extensions: ["android.js", "ios.js", "js", "jsx", "tsx", "ts"],
+//   extensions: ["ios.js", "js", "tsx", "ts"],
+//   extractorFunctionName: "useFeatureFlag",
+// });
