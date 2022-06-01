@@ -1,0 +1,23 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.18.2",
+    "@babel/preset-typescript": "^7.17.12",
+    "@babel/traverse": "^7.18.2",
+    "chalk": "^5.0.1",
+    "cli-progress": "^3.11.1",
+    "jest-haste-map": "^28.1.0",
+    "jest-resolve": "^28.1.0",
+    "jest-resolve-dependencies": "^28.1.0",
+    "yargs": "^17.5.1"
+  }
+}
