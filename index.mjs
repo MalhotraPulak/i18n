@@ -9,6 +9,10 @@ import _traverse from '@babel/traverse';
 // eslint-disable-next-line import/extensions
 import DependencyResolverFactory from './dependencyResolverFactory.js';
 
+function getExtension(filename) {
+  return filename.split('.').pop();
+}
+
 function processor(extractorFunctionName, code, filename) {
   const stringsFound = [];
   try {
@@ -128,10 +132,10 @@ async function getStringsToTranslate({
   while (queue.length) {
     const module = queue.shift();
 
-    if (allFiles.has(module)) {
+    if (allFiles.has(module) || !extensions.includes(getExtension(module))) {
       continue;
     }
-
+    
     allFiles.add(module);
     const dependencies = depFactory.multiResolve(module);
     queue.push(...dependencies);
@@ -159,8 +163,8 @@ async function getStringsToTranslate({
 export default getStringsToTranslate;
 
 getStringsToTranslate({
-  entryPoints: ['./product/entry-point.js'],
-  rootDir: './product',
+  entryPoints: ['../quirk/App.tsx'],
+  rootDir: '../quirk',
   extensions: ['android.js', 'ios.js', 'js', 'jsx', 'tsx', 'ts'],
   extractorFunctionName: 'getString',
 });
