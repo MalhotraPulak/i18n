@@ -1,22 +1,22 @@
-import Resolver from "jest-resolve";
-import { DependencyResolver } from "jest-resolve-dependencies";
+import Resolver from 'jest-resolve';
+import { DependencyResolver } from 'jest-resolve-dependencies';
 
 export default class DependencyResolverFactory {
   constructor(extensions, moduleMap, options, hasteFS) {
-    this._resolvers = extensions.map(
-      (extension) =>
-        new Resolver.default(moduleMap, {
-          ...options,
-          extensions: ["." + extension],
-        })
+    this.resolvers = extensions.map(
+      // eslint-disable-next-line new-cap
+      (extension) => new Resolver.default(moduleMap, {
+        ...options,
+        extensions: [`.${extension}`],
+      }),
     );
-    this.depResolvers = this._resolvers.map(
-      (resolver) => new DependencyResolver(resolver, hasteFS)
+    this.depResolvers = this.resolvers.map(
+      (resolver) => new DependencyResolver(resolver, hasteFS),
     );
   }
 
   multiResolve(module) {
-    let newDependencies = [];
+    const newDependencies = [];
     this.depResolvers.forEach((depResolver) => {
       newDependencies.push(...depResolver.resolve(module));
     });
