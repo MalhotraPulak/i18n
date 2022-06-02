@@ -7,7 +7,7 @@ import { cpus } from 'os';
 import cliProgress from 'cli-progress';
 import _traverse from '@babel/traverse';
 // eslint-disable-next-line import/extensions
-import DependencyResolverFactory from './dependencyResolverFactory.js';
+import MultiDependencyResolver from './multiDependencyResolver.js';
 
 function getExtension(filename) {
   return filename.split('.').pop();
@@ -15,6 +15,16 @@ function getExtension(filename) {
 
 function processor(extractorFunctionName, code, filename) {
   const stringsFound = [];
+  const traverse = _traverse.default;
+
+  const isTargetNode = (node) => node.arguments
+    && node.arguments.length > 0
+    && node.arguments[0].type === 'StringLiteral'
+    && node.callee
+    && (node.callee.name === extractorFunctionName
+      || (node.callee.property
+        && node.callee.property.name === extractorFunctionName));
+
   try {
     const { ast } = babel.transformSync(code, {
       filename,
@@ -27,24 +37,19 @@ function processor(extractorFunctionName, code, filename) {
       code: false,
       ast: true,
     });
-    const traverse = _traverse.default;
+
     traverse(ast, {
       CallExpression(path) {
         const { node } = path;
-        if (
-          node.arguments
-          && node.arguments.length > 0
-          && node.arguments[0].type === 'StringLiteral'
-          && node.callee
-          && node.callee.name === extractorFunctionName
-        ) {
-          stringsFound.push(path.node.arguments[0].value);
+        if (isTargetNode(node)) {
+          stringsFound.push(node.arguments[0].value);
         }
       },
     });
   } catch (err) {
     return false;
   }
+
   return stringsFound;
 }
 
@@ -120,7 +125,7 @@ async function getStringsToTranslate({
     rootDir: root,
   };
 
-  const depFactory = new DependencyResolverFactory(
+  const depFactory = new MultiDependencyResolver(
     extensions,
     moduleMap,
     resolverOpts,
@@ -135,7 +140,7 @@ async function getStringsToTranslate({
     if (allFiles.has(module) || !extensions.includes(getExtension(module))) {
       continue;
     }
-    
+
     allFiles.add(module);
     const dependencies = depFactory.multiResolve(module);
     queue.push(...dependencies);
@@ -147,7 +152,7 @@ async function getStringsToTranslate({
     (code, filename) => processor(extractorFunctionName, code, filename),
   );
   console.log(
-    chalk.bold(`❯ ${chalk.blue(errorFiles.length)} files could not be parsed`),
+    chalk.bold(`❯ ${chalk.blue(errorFiles.length)} files failed to parse`),
   );
   if (errorFiles.length) console.log(errorFiles);
   const stringsSet = new Set(stringsFound);
@@ -163,11 +168,17 @@ async function getStringsToTranslate({
 export default getStringsToTranslate;
 
 getStringsToTranslate({
-  entryPoints: ['../quirk/App.tsx'],
-  rootDir: '../quirk',
+  entryPoints: ['../i18n/quirk/App.tsx'],
+  rootDir: '../i18n/quirk',
   extensions: ['android.js', 'ios.js', 'js', 'jsx', 'tsx', 'ts'],
-  extractorFunctionName: 'getString',
+  extractorFunctionName: 't',
 });
+// getStringsToTranslate({
+//   entryPoints: ['./product/entry-point.js'],
+//   rootDir: './product',
+//   extensions: ['android.js', 'ios.js', 'js', 'jsx', 'tsx', 'ts'],
+//   extractorFunctionName: 'getString',
+// });
 // getStringsToTranslate({
 //   entryPoints: ['../i18n/eigen/index.android.js', '../i18n/eigen/index.ios.js'],
 //   rootDir: '../i18n/eigen',

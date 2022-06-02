@@ -1,7 +1,7 @@
 import Resolver from 'jest-resolve';
 import { DependencyResolver } from 'jest-resolve-dependencies';
 
-export default class DependencyResolverFactory {
+export default class MultiDependencyResolver {
   constructor(extensions, moduleMap, options, hasteFS) {
     this.resolvers = extensions.map(
       // eslint-disable-next-line new-cap
