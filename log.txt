@@ -1,0 +1,24 @@
+❯ Building HasteMap for directory /Users/pulak.malhotra/Desktop/i18n/devhub
+❯ Resolving dependencies recursively
+[
+  'web.js',      'web.jsx',
+  'web.tsx',     'web.ts',
+  'android.js',  'android.jsx',
+  'android.tsx', 'android.ts',
+  'native.js',   'native.jsx',
+  'native.tsx',  'native.ts',
+  'ios.js',      'ios.jsx',
+  'ios.tsx',     'ios.ts',
+  'shared.js',   'shared.jsx',
+  'shared.tsx',  'shared.ts'
+]
+react-native-gesture-handler /Users/pulak.malhotra/Desktop/i18n/devhub/node_modules/react-native-gesture-handler/index.js
+Error: react-native /Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js
+./app.json /Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/app.json
+intl-locales-supported /Users/pulak.malhotra/Desktop/i18n/devhub/node_modules/intl-locales-supported/dist/index.js
+intl /Users/pulak.malhotra/Desktop/i18n/devhub/node_modules/intl/index.js
+Error: @devhub/core/src/utils/constants /Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js
+Error: @devhub/components/src/components/App /Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js
+❯ Found 4 files
+❯ 0 files failed to parse
+❯ Found 0 strings out of which 0 are unique

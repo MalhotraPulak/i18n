@@ -6,11 +6,32 @@ import fs from 'fs';
 import { cpus } from 'os';
 import cliProgress from 'cli-progress';
 import _traverse from '@babel/traverse';
+import Resolver from 'jest-resolve';
+// import { DependencyResolver } from 'jest-resolve-dependencies';
 // eslint-disable-next-line import/extensions
 import MultiDependencyResolver from './multiDependencyResolver.js';
 
 function getExtension(filename) {
   return filename.split('.').pop();
+}
+
+function test(file, hasteFS, moduleMap, rootDir) {
+  const dependencies = Array.from(hasteFS.getDependencies(file) || []);
+  // eslint-disable-next-line new-cap
+  const resolver = new Resolver.default(moduleMap, {
+    extensions: ['web.js', 'android.js', 'ios.js', 'js', 'jsx', 'ts', 'tsx'],
+    hasCoreModules: true,
+    rootDir,
+  });
+  // const dependencyResolver = new DependencyResolver(resolver, hasteFS);
+  dependencies.forEach((dep) => {
+    try {
+      console.log(dep, resolver.resolveModule(file, dep));
+    } catch (err) {
+      console.log('Error:', dep, file);
+    }
+  });
+  //  dependencies.forEach((dep) => console.log(dep, resolver.resolveModule(file, dep)));
 }
 
 function processor(extractorFunctionName, code, filename) {
@@ -81,9 +102,20 @@ async function processFiles(allFiles, fileProcessor) {
   return { errorFiles, stringsFound };
 }
 
+function getExtensionsMap(platforms, extensions) {
+  const extensionsMap = [];
+  platforms.forEach((platform) => {
+    extensions.forEach((extension) => {
+      extensionsMap.push(`${platform}.${extension}`);
+    });
+  });
+  return extensionsMap.concat(extensions);
+}
+
 async function getStringsToTranslate({
   entryPoints,
   rootDir,
+  platforms,
   extensions,
   extractorFunctionName,
 }) {
@@ -91,6 +123,8 @@ async function getStringsToTranslate({
   console.log(
     chalk.bold(`❯ Building HasteMap for directory ${chalk.blue(root)}`),
   );
+
+  const extensionsMap = getExtensionsMap(platforms, extensions);
 
   const hasteMapOptions = {
     extensions,
@@ -124,9 +158,10 @@ async function getStringsToTranslate({
     hasCoreModules: true,
     rootDir: root,
   };
+  console.log(extensionsMap);
 
   const depFactory = new MultiDependencyResolver(
-    extensions,
+    extensionsMap,
     moduleMap,
     resolverOpts,
     hasteFS,
@@ -142,7 +177,9 @@ async function getStringsToTranslate({
     }
 
     allFiles.add(module);
+    test(module, hasteFS, moduleMap, rootDir);
     const dependencies = depFactory.multiResolve(module);
+    console.log(dependencies);
     queue.push(...dependencies);
   }
 
@@ -168,9 +205,10 @@ async function getStringsToTranslate({
 export default getStringsToTranslate;
 
 getStringsToTranslate({
-  entryPoints: ['../i18n/quirk/App.tsx'],
-  rootDir: '../i18n/quirk',
-  extensions: ['android.js', 'ios.js', 'js', 'jsx', 'tsx', 'ts'],
+  entryPoints: ['/Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js'],
+  rootDir: '/Users/pulak.malhotra/Desktop/i18n/devhub',
+  platforms: ['web', 'android', 'native', 'ios', 'shared'],
+  extensions: ['js', 'jsx', 'tsx', 'ts'],
   extractorFunctionName: 't',
 });
 // getStringsToTranslate({

@@ -1,0 +1,1 @@
+getString("Was a default arg")
