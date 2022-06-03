@@ -3,13 +3,16 @@
 To run modify the function call at the bottom of the `app.js` file to suit your needs
 ```js
 getStringsToTranslate({
-  entryPoints: ['../i18n/quirk/App.tsx'],
-  rootDir: '../i18n/quirk',
-  extensions: ['android.js', 'ios.js', 'js', 'jsx', 'tsx', 'ts'],
-  extractorFunctionName: 't',
+  entryPoints: ['./product/entry-point.js'],
+  rootDir: './product',
+  extensions: ['js', 'jsx', 'tsx', 'ts'],
+  platforms: ['web', 'android', 'native', 'ios', 'shared'],
+  extractorFunctionName: 'getString',
 });
 ```
 The run the following command on terminal,
 ```bash
-node app.mjs 
+yarn install
+yarn dev
+node dist/index.js 
 ```
