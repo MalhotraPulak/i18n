@@ -17,7 +17,7 @@ export default class MultiDependencyResolver {
       }),
     );
     this.depResolvers = this.resolvers.map(
-      (resolver) => new DependencyResolver(resolver, hasteFS),
+      (resolver) => new DependencyResolver(resolver, hasteFS, null),
     );
   }
 

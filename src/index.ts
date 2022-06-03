@@ -6,33 +6,10 @@ import fs from 'fs';
 import { cpus } from 'os';
 import cliProgress from 'cli-progress';
 import _traverse from '@babel/traverse';
-import Resolver from 'jest-resolve';
+// import Resolver from 'jest-resolve';
 // import { DependencyResolver } from 'jest-resolve-dependencies';
-// eslint-disable-next-line import/extensions
 import MultiDependencyResolver from './multiDependencyResolver.js';
-
-function getExtension(filename) {
-  return filename.split('.').pop();
-}
-
-function test(file, hasteFS, moduleMap, rootDir) {
-  const dependencies = Array.from(hasteFS.getDependencies(file) || []);
-  // eslint-disable-next-line new-cap
-  const resolver = new Resolver.default(moduleMap, {
-    extensions: ['web.js', 'android.js', 'ios.js', 'js', 'jsx', 'ts', 'tsx'],
-    hasCoreModules: true,
-    rootDir,
-  });
-  // const dependencyResolver = new DependencyResolver(resolver, hasteFS);
-  dependencies.forEach((dep) => {
-    try {
-      console.log(dep, resolver.resolveModule(file, dep));
-    } catch (err) {
-      console.log('Error:', dep, file);
-    }
-  });
-  //  dependencies.forEach((dep) => console.log(dep, resolver.resolveModule(file, dep)));
-}
+import { getExtension, getExtensionsMap } from './utils.js';
 
 function processor(extractorFunctionName, code, filename) {
   const stringsFound = [];
@@ -97,19 +74,9 @@ async function processFiles(allFiles, fileProcessor) {
       done += 1;
       bar1.update(done);
     }),
-  ).catch(console.err);
+  ).catch(console.log);
   bar1.stop();
   return { errorFiles, stringsFound };
-}
-
-function getExtensionsMap(platforms, extensions) {
-  const extensionsMap = [];
-  platforms.forEach((platform) => {
-    extensions.forEach((extension) => {
-      extensionsMap.push(`${platform}.${extension}`);
-    });
-  });
-  return extensionsMap.concat(extensions);
 }
 
 async function getStringsToTranslate({
@@ -128,7 +95,6 @@ async function getStringsToTranslate({
 
   const hasteMapOptions = {
     extensions,
-    name: 'jest-bundler',
     platforms: [],
     rootDir: root,
     roots: [root],
@@ -136,7 +102,6 @@ async function getStringsToTranslate({
   };
   // eslint-disable-next-line new-cap
   const hasteMap = new JestHasteMap.default(hasteMapOptions);
-
   await hasteMap.setupCachePath(hasteMapOptions);
   const { hasteFS, moduleMap } = await hasteMap.build();
 
@@ -177,13 +142,14 @@ async function getStringsToTranslate({
     }
 
     allFiles.add(module);
-    test(module, hasteFS, moduleMap, rootDir);
+    // test(module, hasteFS, moduleMap, rootDir, extensions);
     const dependencies = depFactory.multiResolve(module);
-    console.log(dependencies);
+    // console.log(dependencies);
     queue.push(...dependencies);
   }
 
   console.log(chalk.bold(`❯ Found ${chalk.blue(allFiles.size)} files`));
+  console.log(allFiles);
   const { errorFiles, stringsFound } = await processFiles(
     Array.from(allFiles),
     (code, filename) => processor(extractorFunctionName, code, filename),
@@ -204,19 +170,20 @@ async function getStringsToTranslate({
 }
 export default getStringsToTranslate;
 
-getStringsToTranslate({
-  entryPoints: ['/Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js'],
-  rootDir: '/Users/pulak.malhotra/Desktop/i18n/devhub',
-  platforms: ['web', 'android', 'native', 'ios', 'shared'],
-  extensions: ['js', 'jsx', 'tsx', 'ts'],
-  extractorFunctionName: 't',
-});
 // getStringsToTranslate({
-//   entryPoints: ['./product/entry-point.js'],
-//   rootDir: './product',
-//   extensions: ['android.js', 'ios.js', 'js', 'jsx', 'tsx', 'ts'],
-//   extractorFunctionName: 'getString',
+//   entryPoints: ['/Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js'],
+//   rootDir: '/Users/pulak.malhotra/Desktop/i18n/devhub',
+//   platforms: ['web', 'android', 'ios', 'shared'],
+//   extensions: ['js', 'jsx', 'tsx', 'ts'],
+//   extractorFunctionName: 't',
 // });
+getStringsToTranslate({
+  entryPoints: ['./product/entry-point.js'],
+  rootDir: './product',
+  extensions: ['js', 'jsx', 'tsx', 'ts'],
+  platforms: ['web', 'android', 'native', 'ios', 'shared'],
+  extractorFunctionName: 'getString',
+});
 // getStringsToTranslate({
 //   entryPoints: ['../i18n/eigen/index.android.js', '../i18n/eigen/index.ios.js'],
 //   rootDir: '../i18n/eigen',
