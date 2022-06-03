@@ -8,6 +8,9 @@ import from "hello", it will get "hello.android.js", "hello.ios.js", "hello.js"
 if both files exist.
 */
 export default class MultiDependencyResolver {
+  resolvers: any;
+  depResolvers: any;
+
   constructor(extensions, moduleMap, options, hasteFS) {
     this.resolvers = extensions.map(
       // eslint-disable-next-line new-cap
@@ -22,10 +25,10 @@ export default class MultiDependencyResolver {
   }
 
   multiResolve(module) {
-    const newDependencies = [];
+    const resolved = [];
     this.depResolvers.forEach((depResolver) => {
-      newDependencies.push(...depResolver.resolve(module));
+      resolved.push(...depResolver.resolve(module));
     });
-    return newDependencies;
+    return {resolved, errors: []};
   }
 }

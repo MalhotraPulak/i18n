@@ -1,0 +1,7 @@
+{
+  "name": "myPkg",
+  "version": "1.0.0",
+  "main": "file.native.js",
+  "browser": "file.web.js",
+  "license": "MIT"
+}

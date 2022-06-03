@@ -9,6 +9,8 @@ import _traverse from '@babel/traverse';
 // import Resolver from 'jest-resolve';
 // import { DependencyResolver } from 'jest-resolve-dependencies';
 import MultiDependencyResolver from './multiDependencyResolver.js';
+import MultiEnhancedResolver from './multiEnhancedResolver.js'
+
 import { getExtension, getExtensionsMap } from './utils.js';
 
 function processor(extractorFunctionName, code, filename) {
@@ -131,9 +133,10 @@ async function getStringsToTranslate({
     resolverOpts,
     hasteFS,
   );
+  const enhancedDepFactory = new MultiEnhancedResolver({extensions: extensionsMap, hasteFS, mainFields: ["main", "browser"]})
   const queue = entryPointAbsolute;
   const allFiles = new Set();
-
+  const error_deps = [];
   while (queue.length) {
     const module = queue.shift();
 
@@ -143,13 +146,17 @@ async function getStringsToTranslate({
 
     allFiles.add(module);
     // test(module, hasteFS, moduleMap, rootDir, extensions);
-    const dependencies = depFactory.multiResolve(module);
+    // const {resolved, errors}= depFactory.multiResolve(module);
+    const {resolved, errors} = enhancedDepFactory.multiResolve(module);
     // console.log(dependencies);
-    queue.push(...dependencies);
+    queue.push(...resolved);
+    error_deps.push(...errors);
   }
-
   console.log(chalk.bold(`❯ Found ${chalk.blue(allFiles.size)} files`));
   console.log(allFiles);
+  console.log(chalk.bold(`❯ Failed to parse ${chalk.blue(error_deps.length)} dependencies`));
+  console.log(error_deps)
+
   const { errorFiles, stringsFound } = await processFiles(
     Array.from(allFiles),
     (code, filename) => processor(extractorFunctionName, code, filename),
