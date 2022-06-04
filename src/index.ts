@@ -2,7 +2,7 @@ import * as babel from '@babel/core';
 import JestHasteMap from 'jest-haste-map';
 import { resolve } from 'path';
 import chalk from 'chalk';
-import fs from 'fs';
+import * as fs from 'fs';
 import { cpus } from 'os';
 import cliProgress from 'cli-progress';
 import _traverse from '@babel/traverse';
@@ -156,6 +156,9 @@ async function getStringsToTranslate({
   console.log(allFiles);
   console.log(chalk.bold(`❯ Failed to parse ${chalk.blue(error_deps.length)} dependencies`));
   console.log(error_deps)
+  fs.writeFile('error_deps.json', JSON.stringify(error_deps), (error) => {
+    if (error) throw error;
+  });
 
   const { errorFiles, stringsFound } = await processFiles(
     Array.from(allFiles),
@@ -177,23 +180,26 @@ async function getStringsToTranslate({
 }
 export default getStringsToTranslate;
 
-// getStringsToTranslate({
-//   entryPoints: ['/Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js'],
-//   rootDir: '/Users/pulak.malhotra/Desktop/i18n/devhub',
-//   platforms: ['web', 'android', 'ios', 'shared'],
-//   extensions: ['js', 'jsx', 'tsx', 'ts'],
-//   extractorFunctionName: 't',
-// });
-getStringsToTranslate({
-  entryPoints: ['./product/entry-point.js'],
-  rootDir: './product',
-  extensions: ['js', 'jsx', 'tsx', 'ts'],
-  platforms: ['web', 'android', 'native', 'ios', 'shared'],
-  extractorFunctionName: 'getString',
-});
+// FIXME
 // getStringsToTranslate({
 //   entryPoints: ['../i18n/eigen/index.android.js', '../i18n/eigen/index.ios.js'],
 //   rootDir: '../i18n/eigen',
-//   extensions: ['android.js', 'ios.js', 'js', 'jsx', 'tsx', 'ts'],
+//   extensions: ['js', 'jsx', 'tsx', 'ts'],
+//   platforms: ['web', 'android', 'native', 'ios', 'shared'],
 //   extractorFunctionName: 'useFeatureFlag',
 // });
+getStringsToTranslate({
+  entryPoints: ['/Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js'],
+  rootDir: '/Users/pulak.malhotra/Desktop/i18n/devhub',
+  platforms: ['web', 'android', 'ios', 'shared'],
+  extensions: ['js', 'jsx', 'tsx', 'ts'],
+  extractorFunctionName: 't',
+});
+// getStringsToTranslate({
+//   entryPoints: ['./product/entry-point.js'],
+//   rootDir: './product',
+//   extensions: ['js', 'jsx', 'tsx', 'ts'],
+//   platforms: ['web', 'android', 'native', 'ios', 'shared'],
+//   extractorFunctionName: 'getString',
+// });
+
