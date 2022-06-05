@@ -14,6 +14,7 @@ import MultiEnhancedResolver from './multiEnhancedResolver.js'
 import { getExtension, getExtensionsMap } from './utils.js';
 
 function processor(extractorFunctionName, code, filename) {
+  return
   const stringsFound = [];
   const traverse = _traverse.default;
 
@@ -97,10 +98,13 @@ async function getStringsToTranslate({
 
   const hasteMapOptions = {
     extensions,
-    platforms: [],
+    platforms,
     rootDir: root,
     roots: [root],
     maxWorkers: cpus().length,
+    retainAllFiles: true,
+    useWatchman: false,
+    watch: false
   };
   // eslint-disable-next-line new-cap
   const hasteMap = new JestHasteMap.default(hasteMapOptions);
@@ -133,7 +137,7 @@ async function getStringsToTranslate({
     resolverOpts,
     hasteFS,
   );
-  const enhancedDepFactory = new MultiEnhancedResolver({extensions: extensionsMap, hasteFS, mainFields: ["main", "browser"]})
+  const enhancedDepFactory = new MultiEnhancedResolver({extensions: extensionsMap, hasteFS, mainFields: ["main"]})
   const queue = entryPointAbsolute;
   const allFiles = new Set();
   const error_deps = [];
@@ -188,13 +192,13 @@ export default getStringsToTranslate;
 //   platforms: ['web', 'android', 'native', 'ios', 'shared'],
 //   extractorFunctionName: 'useFeatureFlag',
 // });
-getStringsToTranslate({
-  entryPoints: ['/Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js'],
-  rootDir: '/Users/pulak.malhotra/Desktop/i18n/devhub',
-  platforms: ['web', 'android', 'ios', 'shared'],
-  extensions: ['js', 'jsx', 'tsx', 'ts'],
-  extractorFunctionName: 't',
-});
+// getStringsToTranslate({
+//   entryPoints: ['/Users/pulak.malhotra/Desktop/i18n/devhub/packages/mobile/index.js'],
+//   rootDir: '/Users/pulak.malhotra/Desktop/i18n/devhub',
+//   platforms: ['web', 'android', 'ios', 'shared'],
+//   extensions: ['js', 'jsx', 'tsx', 'ts'],
+//   extractorFunctionName: 't',
+// });
 // getStringsToTranslate({
 //   entryPoints: ['./product/entry-point.js'],
 //   rootDir: './product',
@@ -203,3 +207,10 @@ getStringsToTranslate({
 //   extractorFunctionName: 'getString',
 // });
 
+getStringsToTranslate({
+  entryPoints: ["../zulip-mobile/index.js"],
+  rootDir: '../zulip-mobile',
+  platforms: ['android'],
+  extensions: ['cjs', 'js', 'jsx', 'tsx', 'ts'],
+  extractorFunctionName: 't',
+});

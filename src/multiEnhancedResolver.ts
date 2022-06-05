@@ -8,8 +8,8 @@ export default class MultiEnhancedResolver {
   constructor({extensions, hasteFS, mainFields}) {
     this.hasteFS = hasteFS;
     const resolver = Resolver.default;
-    const cache = new Resolver.default.CachedInputFileSystem(fs, 4000);
-    console.log(extensions, mainFields)
+    const cache = new Resolver.default.CachedInputFileSystem(fs, 10000);
+    // console.log(extensions, mainFields)
     // one resolver for each main field
     const fieldResolvers = mainFields.map((mainField) =>
       resolver.create.sync({
@@ -35,7 +35,8 @@ export default class MultiEnhancedResolver {
     const filePath = module
     module = path.dirname(module)
     // console.log(filePath)
-    const unresolved = this.hasteFS.getDependencies(filePath) || [];
+    const unresolved = this.hasteFS.getDependencies(filePath);
+    console.log(filePath, unresolved)
     const resolved = [];
     const errors = []; 
     unresolved.forEach((dep) => {
