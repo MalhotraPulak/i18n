@@ -13,7 +13,7 @@ export default class MultiEnhancedResolver {
     // one resolver for each main field
     const fieldResolvers = mainFields.map((mainField) =>
       resolver.create.sync({
-        extensions: [],
+        extensions: [".js", ".tsx", ".jsx", ".ts"],
         mainFields: [mainField],
         fileSystem: cache
       })
@@ -36,7 +36,7 @@ export default class MultiEnhancedResolver {
     module = path.dirname(module)
     // console.log(filePath)
     const unresolved = this.hasteFS.getDependencies(filePath);
-    console.log(filePath, unresolved)
+    // console.log(filePath, unresolved)
     const resolved = [];
     const errors = []; 
     unresolved.forEach((dep) => {
