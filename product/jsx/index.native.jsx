@@ -1,0 +1,1 @@
+getString("from index.native.jsx yay")

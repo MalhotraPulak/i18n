@@ -1,0 +1,1 @@
+getString("from index.web.jsx yay");

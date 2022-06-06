@@ -1,0 +1,1 @@
+getString("dynamic string")
