@@ -2,3 +2,5 @@ node_modules/
 dist/
 log.txt
 error_deps.json
+my.json
+files.json

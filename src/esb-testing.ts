@@ -42,22 +42,15 @@ async function getAllFiles(entryPoints, platform) {
 
 // const entryPoints = ['/private/tmp/quirk/App.tsx']
 async function main() {
-  const entryPoints = ['/Users/pulak.malhotra/intern/eigen/index.android.js']
-  const allFiles = new Set()
-  const platforms = ["android", "ios"]
+  const entryPoints = ['/Users/pulak.malhotra/intern/eigen/index.android.js'];
+  const allFiles = new Set();
+  const platforms = ["android", "ios"];
   await Promise.all(platforms.map(async (platform) => {
     const files = await getAllFiles(entryPoints, platform);
-    files.forEach(allFiles.add, allFiles)
+    files.forEach(allFiles.add, allFiles);
   }));
-  console.log(allFiles)
-  console.log(chalk.bold(`Found ${chalk.blue(allFiles.size)} files`))
-  fs.writeFile('./my.json', JSON.stringify(allFiles),
-    function (err) {
-        if (err) {
-            console.error('Crap happens');
-        }
-    }
-);
+  console.log(chalk.bold(`Found ${chalk.blue(allFiles.size)} files`));
+  fs.writeFile('files.json', JSON.stringify(allFiles), console.log);
 }
 
 main()
