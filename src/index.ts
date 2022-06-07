@@ -8,8 +8,6 @@ import { getExtension, getExtensionsMap } from './utils.js';
 import { cpus } from 'os';
 import { stringExtractor} from './fileProcessor.js'
 
-
-
 async function getStringsToTranslate({
   entryPoints,
   rootDir,
