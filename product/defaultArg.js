@@ -3,3 +3,4 @@ const fn = (x = require("./fromDefaultArg.js")) => {
 };
 
 fn();
+export default "lmao"

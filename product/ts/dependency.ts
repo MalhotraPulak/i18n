@@ -1,4 +1,4 @@
 export default "Hello from Typescript"
 const getString = (x) => x
-getString("try to get me")
+getString("from dependency.ts")
 import data from "../tomato"
