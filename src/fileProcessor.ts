@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import {pkgUp} from 'pkg-up';
 import * as path from 'path';
 import memoize from "memoizee";
+import WorkerPool from 'workerpool';
 
 function processor(extractorFunctionName: string, code: string, filename: string) {
   const stringsFound = [];
@@ -47,31 +48,63 @@ function processor(extractorFunctionName: string, code: string, filename: string
   return stringsFound;
 }
 
+// async function processFiles(allFiles: string[], extractorFunctionName: string) {
+//   const allCodes = [];
+//   const errorFiles = [];
+//   const stringsFound = [];
+//   let done = 0;
+//   const bar1 = new cliProgress.SingleBar(
+//     {},
+//     cliProgress.Presets.shades_classic,
+//   );
+//   bar1.start(allFiles.length, 0);
+//   await Promise.all(
+//     Array.from(allFiles).map(async (file) => {
+//       const code = await fs.promises.readFile(file, {encoding: 'utf8'});
+//       allCodes.push(code);
+//       const ret = processor(extractorFunctionName, code, file);
+//       if (!ret) {
+//         errorFiles.push(file);
+//       } else {
+//         stringsFound.push(...ret);
+//       }
+//       done += 1;
+//       bar1.update(done);
+//     }),
+//   ).catch(console.log);
+//   bar1.stop();
+//   return { errorFiles, stringsFound };
+// }
+async function workerPoolInit() {
+  const pool = WorkerPool.pool(path.join(path.resolve(), './dist/multithreading/myWorker.js'), {minWorkers: 'max'})
+  const poolProxy = await pool.proxy()
+  console.log(pool.minWorkers, pool.maxWorkers)
+  return {poolProxy, pool}
+}
+
+
+async function processFile(filename, extractorFunctionName) {
+  const code = await fs.promises.readFile(filename, {encoding: 'utf8'});
+  const ret = processor(extractorFunctionName, code, filename);
+  return ret 
+}
+
 async function processFiles(allFiles: string[], extractorFunctionName: string) {
-  const allCodes = [];
+  const {poolProxy, pool} = await workerPoolInit()
   const errorFiles = [];
   const stringsFound = [];
-  let done = 0;
-  const bar1 = new cliProgress.SingleBar(
-    {},
-    cliProgress.Presets.shades_classic,
-  );
-  bar1.start(allFiles.length, 0);
   await Promise.all(
-    Array.from(allFiles).map(async (file) => {
-      const code = await fs.promises.readFile(file, {encoding: 'utf8'});
-      allCodes.push(code);
-      const ret = processor(extractorFunctionName, code, file);
+    allFiles.map(async (file) => {
+      const ret = await poolProxy.processFile(file, extractorFunctionName)
+      // const ret = await processFile(file, extractorFunctionName)
       if (!ret) {
         errorFiles.push(file);
       } else {
         stringsFound.push(...ret);
       }
-      done += 1;
-      bar1.update(done);
     }),
   ).catch(console.log);
-  bar1.stop();
+  pool.terminate()
   return { errorFiles, stringsFound };
 }
 
@@ -112,4 +145,4 @@ async function getNearestPackage(allFiles: string[]) {
 
 
 
-export {stringExtractor, getNearestPackage}
+export {stringExtractor, getNearestPackage, processFile}

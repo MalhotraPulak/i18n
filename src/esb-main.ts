@@ -4,7 +4,7 @@ import flow from "esbuild-plugin-flow";
 import chalk from "chalk";
 import * as fs from "fs";
 import { stringExtractor, getNearestPackage } from "./fileProcessor.js";
-import { getPlatformExts } from "./utils.js"
+import { getPlatformExts, timeFnAsync } from "./utils.js"
 import { performance } from 'perf_hooks';
 
 async function getAllFilesPerPlatform({
@@ -97,19 +97,9 @@ function initialize() {
 async function main() {
   const { entryPoints, platforms, packagesBlacklist, extractorFunctionName } =
     initialize();
-  const allFiles = await getAllFiles(entryPoints, platforms, packagesBlacklist);
-  // console.log(allFiles)
-  let startTime = performance.now()
-  await stringExtractor(allFiles, extractorFunctionName);
-  // TODO plugins
-  // TODO 2nd approach => babel
-  // TODO inline requires plugin and inline imports
-  let endTime = performance.now()
-  console.log(`Call to string extractor took ${endTime - startTime} milliseconds`)
-  startTime = performance.now()
-  console.log(await getNearestPackage(allFiles))
-  endTime = performance.now()
-  console.log(`Call to getNearestPackage took ${endTime - startTime} milliseconds`)
+  const allFiles = await timeFnAsync(getAllFiles, entryPoints, platforms, packagesBlacklist)
+  await timeFnAsync(stringExtractor, allFiles, extractorFunctionName)
+  await timeFnAsync(getNearestPackage, allFiles)
 }
 
 main();

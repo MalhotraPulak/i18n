@@ -27,6 +27,7 @@
     "jest-resolve-dependencies": "^28.1.0",
     "memoizee": "^0.4.15",
     "pkg-up": "^4.0.0",
+    "workerpool": "^6.2.1",
     "yargs": "^17.5.1"
   },
   "devDependencies": {

@@ -14,6 +14,14 @@ function getExtensionsMap(platforms, extensions) {
   return extensionsMap.concat(extensions);
 }
 
+
+async function timeFnAsync(fn, ...args) {
+  const startTime = performance.now()
+  const ret = await fn(...args)
+  const endTime = performance.now()
+  console.log(`Call to ${fn.name} took ${endTime - startTime} milliseconds`)
+  return ret
+}
 // function test(file, hasteFS, moduleMap, rootDir, extensions) {
 //   const dependencies = Array.from(hasteFS.getDependencies(file) || []);
 //   // eslint-disable-next-line new-cap
@@ -52,4 +60,4 @@ const getPlatformExts = (platform: string) => [
   ".jsx",
 ];
 
-export { getExtension, getExtensionsMap, getPlatformExts };
+export { timeFnAsync, getExtension, getExtensionsMap, getPlatformExts };
