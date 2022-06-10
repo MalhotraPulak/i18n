@@ -4,6 +4,7 @@
     "target": "es2015",
     "declaration": true,
     "moduleResolution": "node12",
+    "esModuleInterop": true
   },
   "include": [ "src" ]
 }

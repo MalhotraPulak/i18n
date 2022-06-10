@@ -14,23 +14,42 @@ function getExtensionsMap(platforms, extensions) {
   return extensionsMap.concat(extensions);
 }
 
-function test(file, hasteFS, moduleMap, rootDir, extensions) {
-  const dependencies = Array.from(hasteFS.getDependencies(file) || []);
-  // eslint-disable-next-line new-cap
-  const resolver = new Resolver.default(moduleMap, {
-    extensions,
-    hasCoreModules: true,
-    rootDir,
-  });
-  // const dependencyResolver = new DependencyResolver(resolver, hasteFS);
-  dependencies.forEach((dep) => {
-    try {
-      console.log(dep, resolver.resolveModule(file, dep));
-    } catch (err) {
-      console.log('Error:', dep, file);
-    }
-  });
-  //  dependencies.forEach((dep) => console.log(dep, resolver.resolveModule(file, dep)));
-}
+// function test(file, hasteFS, moduleMap, rootDir, extensions) {
+//   const dependencies = Array.from(hasteFS.getDependencies(file) || []);
+//   // eslint-disable-next-line new-cap
+//   const resolver = new Resolver.default(moduleMap, {
+//     extensions,
+//     hasCoreModules: true,
+//     rootDir,
+//   });
+//   // const dependencyResolver = new DependencyResolver(resolver, hasteFS);
+//   dependencies.forEach((dep) => {
+//     try {
+//       console.log(dep, resolver.resolveModule(file, dep));
+//     } catch (err) {
+//       console.log('Error:', dep, file);
+//     }
+//   });
+//   //  dependencies.forEach((dep) => console.log(dep, resolver.resolveModule(file, dep)));
+// }
 
-export { test, getExtension, getExtensionsMap };
+const getPlatformExts = (platform: string) => [
+  ".native",
+  `.${platform}.js`,
+  ".native.js",
+  ".js",
+  `.${platform}.json`,
+  ".native.json",
+  ".json",
+  `.${platform}.ts`,
+  ".native.ts",
+  ".ts",
+  `.${platform}.tsx`,
+  ".native.tsx",
+  ".tsx",
+  `.${platform}.jsx`,
+  ".native.jsx",
+  ".jsx",
+];
+
+export { getExtension, getExtensionsMap, getPlatformExts };

@@ -3,56 +3,38 @@ import flow from "esbuild-plugin-flow";
 // import { babelFlowPlugin } from 'esbuild-plugin-babel-flow'
 import chalk from "chalk";
 import * as fs from "fs";
-import { stringExtractor } from "./fileProcessor.js";
+import { stringExtractor, getNearestPackage } from "./fileProcessor.js";
+import { getPlatformExts } from "./utils.js"
+import { performance } from 'perf_hooks';
 
 async function getAllFilesPerPlatform({
   entryPoints,
   platform,
   packagesBlacklist,
 }) {
-  const getPlatformExts = (platform) => [
-    ".native",
-    `.${platform}.js`,
-    ".native.js",
-    ".js",
-    `.${platform}.json`,
-    ".native.json",
-    ".json",
-    `.${platform}.ts`,
-    ".native.ts",
-    ".ts",
-    `.${platform}.tsx`,
-    ".native.tsx",
-    ".tsx",
-    `.${platform}.jsx`,
-    ".native.jsx",
-    ".jsx",
-  ];
+
   console.log(
     chalk.bold(`Getting all files for ${chalk.blue(platform)} platform`)
   );
   let result = await esbuild.build({
     entryPoints,
     bundle: true,
-    outfile: "/tmp/trash/trash.txt",
+    outdir: "/tmp/trash/",
     resolveExtensions: getPlatformExts(platform),
     metafile: true,
     platform: "node",
     mainFields: ["react-native", "browser", "main"],
     // plugins: [flow(/node_modules\/react-native.*\.jsx?$|node_modules\/@react-native.*\.jsx?$|\.flow\.jsx?$/, true)],
-    plugins: [flow(/\.jsx?$/, true)],
+    // plugins: [flow(/\.jsx?$/, true)],
     external: packagesBlacklist,
     loader: {
       ".js": "jsx",
-      ".png": "file",
-      ".ttf": "file",
-      ".webp": "file",
     },
   });
 
   const metadata = result.metafile;
   const files = Object.keys(metadata.inputs);
-
+  // console.log(result.metafile)
   return Array.from(files);
 }
 
@@ -81,23 +63,33 @@ async function getAllFiles(
 
 function initialize() {
   // const entryPoints = ['/Users/pulak.malhotra/intern/quirk/App.tsx']
+  // const entryPoints = ["/Users/pulak.malhotra/intern/eigen/index.android.js", "/Users/pulak.malhotra/intern/eigen/index.ios.js"];
   const entryPoints = ["/Users/pulak.malhotra/intern/eigen/index.android.js"];
   // const entryPoints = ['/Users/pulak.malhotra/intern/i18n/product/entry-point.js'];
-  const platforms = ["android", "ios"];
+  // const entryPoints = ["/Users/pulak.malhotra/intern/devhub/packages/mobile/index.js"]
+  // const entryPoints = ["/Users/pulak.malhotra/intern/zulip-mobile/index.js"]
+
+  const platforms = ["android"];
   const extractorFunctionName = "getString";
   const packagesBlacklist = [
     "*.png",
     "*.ttf",
+    "*.webp",
+    "*.svg",
     "images/*",
     "*.json",
-    // "@react-*",
+    "@react-*",
     "react-*",
+    "react-native-screens",
     "@react-native-mapbox-gl",
+    "react-native-svg",
     "@expo*",
-    // "@sentry*",
-    // "relay-runtime*",
-    // "core-js",
-    // "lodash"
+    "@sentry*",
+    "relay-runtime*",
+    "core-js",
+    "lodash",
+    "rn*",
+    "@invertase"
   ];
   return { entryPoints, platforms, extractorFunctionName, packagesBlacklist };
 }
@@ -106,7 +98,18 @@ async function main() {
   const { entryPoints, platforms, packagesBlacklist, extractorFunctionName } =
     initialize();
   const allFiles = await getAllFiles(entryPoints, platforms, packagesBlacklist);
-  stringExtractor(allFiles, extractorFunctionName);
+  // console.log(allFiles)
+  let startTime = performance.now()
+  await stringExtractor(allFiles, extractorFunctionName);
+  // TODO plugins
+  // TODO 2nd approach => babel
+  // TODO inline requires plugin and inline imports
+  let endTime = performance.now()
+  console.log(`Call to string extractor took ${endTime - startTime} milliseconds`)
+  startTime = performance.now()
+  console.log(await getNearestPackage(allFiles))
+  endTime = performance.now()
+  console.log(`Call to getNearestPackage took ${endTime - startTime} milliseconds`)
 }
 
 main();

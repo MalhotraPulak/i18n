@@ -7,6 +7,7 @@ import MultiEnhancedResolver from './multiEnhancedResolver.js'
 import { getExtension, getExtensionsMap } from './utils.js';
 import { cpus } from 'os';
 import { stringExtractor} from './fileProcessor.js'
+import SinglePlatformResolver from './singlePlatformResolver.js';
 
 async function getStringsToTranslate({
   entryPoints,
@@ -64,8 +65,11 @@ async function getStringsToTranslate({
     hasteFS,
   );
   const enhancedDepFactory = new MultiEnhancedResolver({extensions: extensionsMap, hasteFS, mainFields: ["main"]})
+  const enhancedSingle = new SinglePlatformResolver({platforms, hasteFS, mainFields: ["react-native", "browser", "main"]})
+
+
   const queue = entryPointAbsolute;
-  const allFiles = new Set();
+  const allFiles: Set <string> = new Set();
   const error_deps = [];
   while (queue.length) {
     const module = queue.shift();
@@ -77,20 +81,21 @@ async function getStringsToTranslate({
     allFiles.add(module);
     // test(module, hasteFS, moduleMap, rootDir, extensions);
     // const {resolved, errors}= depFactory.multiResolve(module);
-    const {resolved, errors} = enhancedDepFactory.multiResolve(module);
+    // const {resolved, errors} = enhancedDepFactory.multiResolve(module);
+    const {resolved, errors} = enhancedSingle.multiResolve(module);
     // console.log(dependencies);
     queue.push(...resolved);
     error_deps.push(...errors);
   }
   console.log(chalk.bold(`❯ Found ${chalk.blue(allFiles.size)} files`));
-  console.log(allFiles);
+  // console.log(allFiles);
   console.log(chalk.bold(`❯ Failed to parse ${chalk.blue(error_deps.length)} dependencies`));
-  console.log(error_deps)
+  // console.log(error_deps)
   fs.writeFile('error_deps.json', JSON.stringify(error_deps), (error) => {
     if (error) throw error;
   });
 
-  stringExtractor(Array.from(allFiles), extractorFunctionName);
+  // stringExtractor(Array.from(allFiles), extractorFunctionName);
 
 }
 export default getStringsToTranslate;
@@ -118,9 +123,9 @@ export default getStringsToTranslate;
 //   extractorFunctionName: 't',
 // });
 getStringsToTranslate({
-  entryPoints: ['/Users/pulak.malhotra/intern/eigen/index.android.js'],
-  rootDir: '/Users/pulak.malhotra/intern/eigen/',
-  platforms: ['android'],
+  entryPoints: ["/Users/pulak.malhotra/intern/zulip-mobile/index.js"],
+  rootDir: '/Users/pulak.malhotra/intern/zulip-mobile/',
+  platforms: ['android', 'ios'],
   extensions: ['js', 'jsx', 'tsx', 'ts'],
   extractorFunctionName: 't',
 });

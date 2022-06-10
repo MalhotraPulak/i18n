@@ -3,6 +3,9 @@ import cliProgress from 'cli-progress';
 import _traverse from '@babel/traverse';
 import chalk from 'chalk';
 import * as fs from 'fs';
+import {pkgUp} from 'pkg-up';
+import * as path from 'path';
+import memoize from "memoizee";
 
 function processor(extractorFunctionName: string, code: string, filename: string) {
   const stringsFound = [];
@@ -94,4 +97,19 @@ async function stringExtractor(allFiles: string[], extractorFunctionName: string
   if (stringsFound.length) console.log(new Set(stringsFound));
 }
 
-export {stringExtractor}
+async function getNearestPackageForFile(file: string, memoPkgUp) {
+  return await memoPkgUp({cwd: path.dirname(file)}) 
+}
+
+async function getNearestPackage(allFiles: string[]) {
+  const memoPkgUp = memoize(pkgUp);
+  return await Promise.all(allFiles.map(async (file: string) => ({
+    file: file,
+    package: await getNearestPackageForFile(file, memoPkgUp)
+  })))
+}
+
+
+
+
+export {stringExtractor, getNearestPackage}
