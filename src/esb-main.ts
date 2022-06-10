@@ -62,15 +62,16 @@ async function getAllFiles(
 }
 
 function initialize() {
-  // const entryPoints = ['/Users/pulak.malhotra/intern/quirk/App.tsx']
+  const entryPoints = ['/Users/pulak.malhotra/intern/quirk/App.tsx']
   // const entryPoints = ["/Users/pulak.malhotra/intern/eigen/index.android.js", "/Users/pulak.malhotra/intern/eigen/index.ios.js"];
-  const entryPoints = ["/Users/pulak.malhotra/intern/eigen/index.android.js"];
+  // const entryPoints = ["/Users/pulak.malhotra/intern/eigen/index.android.js"];
   // const entryPoints = ['/Users/pulak.malhotra/intern/i18n/product/entry-point.js'];
   // const entryPoints = ["/Users/pulak.malhotra/intern/devhub/packages/mobile/index.js"]
   // const entryPoints = ["/Users/pulak.malhotra/intern/zulip-mobile/index.js"]
+  // const entryPoints = ["/Users/pulak.malhotra/intern/i18n/product/entry-point.js"]
 
   const platforms = ["android"];
-  const extractorFunctionName = "getString";
+  const extractorFunctionName = "t";
   const packagesBlacklist = [
     "*.png",
     "*.ttf",

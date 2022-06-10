@@ -7,6 +7,9 @@ import { pkgUp } from 'pkg-up';
 import * as path from 'path';
 import memoize from "memoizee";
 import WorkerPool from 'workerpool';
+import swc from '@swc/core';
+import toBabel from 'swc-to-babel';
+import { getExtension } from './utils.js';
 
 function isTargetNode(node, extractorFunctionName: string) {
   return node.arguments
@@ -18,10 +21,7 @@ function isTargetNode(node, extractorFunctionName: string) {
         && node.callee.property.name === extractorFunctionName));
 }
 
-function processor(extractorFunctionName: string, code: string, filename: string) {
-  const stringsFound = [];
-  const traverse = _traverse.default;
-  try {
+function getAstBabel(code, filename) {
     const { ast } = babel.transformSync(code, {
       filename,
       presets: [
@@ -33,16 +33,52 @@ function processor(extractorFunctionName: string, code: string, filename: string
       code: false,
       ast: true,
     });
+    return ast
+}
 
+function getAstSwc(code, filename) {
+    let syntax: "ecmascript" | "typescript";
+    if (getExtension(filename) === "js" || getExtension(filename) === "jsx") {
+      syntax = "ecmascript"
+    } else {
+      syntax = "typescript"
+    }
+    // console.log(syntax)
+    // console.log(code)
+    const ast = toBabel(swc.parseSync(code, {
+      syntax,
+      tsx: true,
+      jsx: true,
+      decorators: true,
+      topLevelAwait: true,
+      dynamicImport: true,
+
+    }), code);
+    return ast
+}
+
+
+function processor(extractorFunctionName: string, code: string, filename: string) {
+  const stringsFound = [];
+  const traverse = _traverse.default;
+  try {
+    // const ast = getAstBabel(code, filename);
+    const ast = getAstSwc(code, filename);
+    // traverseAST(ast) 
+    // console.log(ast)
+    // console.log(ast)
     traverse(ast, {
       CallExpression(path) {
         const { node } = path;
+        // console.log(node)
         if (isTargetNode(node, extractorFunctionName)) {
+          // console.log("here")
           stringsFound.push(node.arguments[0].value);
         }
       },
     });
   } catch (err) {
+    console.log(err)
     return false;
   }
 

@@ -4,3 +4,5 @@ log.txt
 error_deps.json
 my.json
 files.json
+babelAST.json
+swcAST.json

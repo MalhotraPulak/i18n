@@ -16,6 +16,7 @@
     "@babel/preset-react": "^7.17.12",
     "@babel/preset-typescript": "^7.17.12",
     "@babel/traverse": "^7.18.2",
+    "@swc/core": "^1.2.197",
     "chalk": "^5.0.1",
     "cli-progress": "^3.11.1",
     "enhanced-resolve": "^5.9.3",
@@ -27,6 +28,7 @@
     "jest-resolve-dependencies": "^28.1.0",
     "memoizee": "^0.4.15",
     "pkg-up": "^4.0.0",
+    "swc-to-babel": "^1.10.0",
     "workerpool": "^6.2.1",
     "yargs": "^17.5.1"
   },
