@@ -3,30 +3,31 @@ import cliProgress from 'cli-progress';
 import _traverse from '@babel/traverse';
 import chalk from 'chalk';
 import * as fs from 'fs';
-import {pkgUp} from 'pkg-up';
+import { pkgUp } from 'pkg-up';
 import * as path from 'path';
 import memoize from "memoizee";
 import WorkerPool from 'workerpool';
 
-function processor(extractorFunctionName: string, code: string, filename: string) {
-  const stringsFound = [];
-  const traverse = _traverse.default;
-
-  const isTargetNode = (node) => node.arguments
+function isTargetNode(node, extractorFunctionName: string) {
+  return node.arguments
     && node.arguments.length > 0
     && node.arguments[0].type === 'StringLiteral'
     && node.callee
     && (node.callee.name === extractorFunctionName
       || (node.callee.property
         && node.callee.property.name === extractorFunctionName));
+}
 
+function processor(extractorFunctionName: string, code: string, filename: string) {
+  const stringsFound = [];
+  const traverse = _traverse.default;
   try {
     const { ast } = babel.transformSync(code, {
       filename,
       presets: [
         '@babel/preset-typescript',
         '@babel/preset-react',
-        '@babel/preset-flow',
+        // '@babel/preset-flow',
       ],
       plugins: [['@babel/plugin-proposal-decorators', { legacy: true }]],
       code: false,
@@ -36,7 +37,7 @@ function processor(extractorFunctionName: string, code: string, filename: string
     traverse(ast, {
       CallExpression(path) {
         const { node } = path;
-        if (isTargetNode(node)) {
+        if (isTargetNode(node, extractorFunctionName)) {
           stringsFound.push(node.arguments[0].value);
         }
       },
@@ -76,21 +77,20 @@ function processor(extractorFunctionName: string, code: string, filename: string
 //   return { errorFiles, stringsFound };
 // }
 async function workerPoolInit() {
-  const pool = WorkerPool.pool(path.join(path.resolve(), './dist/multithreading/myWorker.js'), {minWorkers: 'max'})
+  const pool = WorkerPool.pool(path.join(path.resolve(), './dist/multithreading/myWorker.js'), { minWorkers: 'max' })
   const poolProxy = await pool.proxy()
-  console.log(pool.minWorkers, pool.maxWorkers)
-  return {poolProxy, pool}
+  // console.log(pool.minWorkers, pool.maxWorkers)
+  return { poolProxy, pool }
 }
 
 
 async function processFile(filename, extractorFunctionName) {
-  const code = await fs.promises.readFile(filename, {encoding: 'utf8'});
-  const ret = processor(extractorFunctionName, code, filename);
-  return ret 
+  const code = await fs.promises.readFile(filename, { encoding: 'utf8' });
+  return processor(extractorFunctionName, code, filename);
 }
 
 async function processFiles(allFiles: string[], extractorFunctionName: string) {
-  const {poolProxy, pool} = await workerPoolInit()
+  const { poolProxy, pool } = await workerPoolInit()
   const errorFiles = [];
   const stringsFound = [];
   await Promise.all(
@@ -131,7 +131,7 @@ async function stringExtractor(allFiles: string[], extractorFunctionName: string
 }
 
 async function getNearestPackageForFile(file: string, memoPkgUp) {
-  return await memoPkgUp({cwd: path.dirname(file)}) 
+  return await memoPkgUp({ cwd: path.dirname(file) })
 }
 
 async function getNearestPackage(allFiles: string[]) {
@@ -145,4 +145,4 @@ async function getNearestPackage(allFiles: string[]) {
 
 
 
-export {stringExtractor, getNearestPackage, processFile}
+export { stringExtractor, getNearestPackage, processFile }
