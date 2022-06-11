@@ -7,12 +7,15 @@ import * as babel from '@babel/core'
 async function main() {
 const filename = "./Theme.tsx"
 
-const code = `
-(
-  "hello" as any
-)
-`
+// const code = `
+// (
+//   a.b as any
+// )
+// `
 
+const code = `
+  a?.b
+`
 function getAstBabel(code, filename) {
   const { ast } = babel.transformSync(code, {
     filename,
@@ -42,7 +45,6 @@ const swcStuff =  await swc.parse(code, {
   decorators: true,
   topLevelAwait: true,
   dynamicImport: true,
-
 });
 // console.log(swcStuff)
 const babelstuff = getAstBabel(code, filename);
@@ -50,6 +52,7 @@ fs.writeFileSync("babelAST.json", JSON.stringify(babelstuff, null, 4))
 fs.writeFileSync("swcAST.json", JSON.stringify(swcStuff, null, 4))
 
 const ast = toBabel(swcStuff, code);
+fs.writeFileSync("swcAST.json", JSON.stringify(ast, null, 4))
 // fs.writeFileSync("swcAST.json", JSON.stringify(babelstuff, null , 4))
 // traverseAST(ast) 
 // console.log(ast)

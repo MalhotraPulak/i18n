@@ -78,7 +78,7 @@ function processor(extractorFunctionName: string, code: string, filename: string
       },
     });
   } catch (err) {
-    console.log(err)
+    console.log(filename, err)
     return false;
   }
 
